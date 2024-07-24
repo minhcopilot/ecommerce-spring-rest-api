@@ -5,8 +5,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -16,7 +22,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
-public class User extends BaseEntity{
+public class User extends BaseEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -48,4 +54,37 @@ public class User extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "role_id")
     Role role;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        //get list roles of user
+        List<SimpleGrantedAuthority> authorities= new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_"+role.getName()));
+        return authorities;
+    }
+
+    @Override
+    public String getUsername() {
+        return phoneNumber;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

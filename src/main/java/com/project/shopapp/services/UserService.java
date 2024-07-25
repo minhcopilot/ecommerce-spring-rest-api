@@ -56,7 +56,7 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
-    public String login(String phoneNumber, String password){
+    public String login(String phoneNumber, String password) throws Exception {
         Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
         if(user.isEmpty()){
             throw new RuntimeException("User not found");

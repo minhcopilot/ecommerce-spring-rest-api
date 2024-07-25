@@ -10,6 +10,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -27,7 +28,7 @@ public class JwtTokenUtil {
     @Value("${jwt.secretKey}")
     private String secretKey;
 
-    public String generateToken(User user){
+    public String generateToken(User user) throws Exception{
         Map<String, Object> claims = new HashMap<>();
         claims.put("phoneNumber", user.getPhoneNumber());
         try {
@@ -40,8 +41,7 @@ public class JwtTokenUtil {
                     .compact();
             return token;
         }catch (Exception e){
-            System.out.println("Failed to generate token");
-            return null;
+            throw new RuntimeException("Failed to generate token");
         }
     }
     private Key getSignInkey(){
@@ -64,5 +64,12 @@ public class JwtTokenUtil {
         Date expirationDate = this.extractClaim(token, Claims::getExpiration);
         return expirationDate.before(new Date());
     }
+    public String extractPhoneNumber(String token){
+        return this.extractClaim(token, Claims::getSubject);
+    }
 
+    public boolean validateToken(String token, UserDetails userDetails){
+        final String phoneNumber = this.extractPhoneNumber(token);
+        return (phoneNumber.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
 }

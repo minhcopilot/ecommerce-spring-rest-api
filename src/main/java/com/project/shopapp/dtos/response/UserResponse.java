@@ -29,6 +29,5 @@ public class UserResponse {
     @JsonProperty("google_account_id")
     int googleAccountId;
     @JsonProperty("role_id")
-    @NotNull(message = "Role id is required")
     long roleId;
 }
